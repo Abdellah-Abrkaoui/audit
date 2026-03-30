@@ -88,7 +88,7 @@ function AdminForm() {
         const formData = new FormData();
         formData.append('photo', file);
         try {
-            const res = await axios.post('http://localhost:5000/api/audits/upload', formData, {
+            const res = await axios.post('https://audit-mbfr.onrender.com/api/audits/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             return res.data.photoUrl;
@@ -120,7 +120,7 @@ function AdminForm() {
                 category,
                 checklistResponses: Object.values(responses)
             };
-            await axios.post('http://localhost:5000/api/audits', payload);
+            await axios.post('https://audit-mbfr.onrender.com/api/audits', payload);
             navigate('/');
         } catch (err) {
             console.error('Error submitting audit', err);
@@ -194,7 +194,7 @@ function AdminForm() {
                         <div className="flex items-center space-x-4">
                             {siteImage ? (
                                 <div className="relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-                                    <img src={`http://localhost:5000${siteImage}`} className="h-16 w-32 object-cover" alt="Site" />
+                                    <img src={`https://audit-mbfr.onrender.com${siteImage}`} className="h-16 w-32 object-cover" alt="Site" />
                                     <button type="button" onClick={() => setSiteImage(null)} className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">Remove</button>
                                 </div>
                             ) : (
@@ -264,7 +264,7 @@ function AdminForm() {
                                                                 {/* Photo */}
                                                                 {item.photoUrl ? (
                                                                     <div className="relative group">
-                                                                        <img src={`http://localhost:5000${item.photoUrl}`} alt="proof" className="h-10 w-14 object-cover rounded-md border" />
+                                                                        <img src={`https://audit-mbfr.onrender.com${item.photoUrl}`} alt="proof" className="h-10 w-14 object-cover rounded-md border" />
                                                                         <button type="button" onClick={() => updateResponse(item._idx, 'photoUrl', null)} className="absolute -top-2 -right-2 bg-white rounded-full text-red-500 shadow opacity-0 group-hover:opacity-100"><XCircle className="w-5 h-5" /></button>
                                                                     </div>
                                                                 ) : (

@@ -23,7 +23,7 @@ function Dashboard() {
     useEffect(() => {
         const fetchAudits = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/audits');
+                const res = await axios.get('https://audit-mbfr.onrender.com/api/audits');
                 setAudits(res.data);
             } catch (err) {
                 console.error('Error fetching audits', err);
@@ -161,7 +161,7 @@ function Dashboard() {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                             <div className="flex items-center">
                                                 {audit.siteImage ? (
-                                                    <img src={`http://localhost:5000${audit.siteImage}`} className="w-8 h-8 rounded-md object-cover mr-3 border" />
+                                                    <img src={`https://audit-mbfr.onrender.com${audit.siteImage}`} className="w-8 h-8 rounded-md object-cover mr-3 border" />
                                                 ) : (
                                                     <div className="w-8 h-8 rounded-md bg-gray-100 mr-3 flex items-center justify-center text-gray-400 border"><FileText className="w-4 h-4" /></div>
                                                 )}

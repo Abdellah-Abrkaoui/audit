@@ -14,7 +14,7 @@ function AuditDetails() {
     useEffect(() => {
         const fetchAudit = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/audits/${id}`);
+                const res = await axios.get(`https://audit-mbfr.onrender.com/api/audits/${id}`);
                 setData(res.data);
             } catch (err) {
                 console.error('Error fetching audit details', err);
@@ -28,7 +28,7 @@ function AuditDetails() {
     const handleDelete = async () => {
         if (window.confirm("Are you sure you want to delete this audit report?")) {
             try {
-                await axios.delete(`http://localhost:5000/api/audits/${id}`);
+                await axios.delete(`https://audit-mbfr.onrender.com/api/audits/${id}`);
                 navigate('/');
             } catch (err) {
                 console.error('Error deleting audit', err);
@@ -85,7 +85,7 @@ function AuditDetails() {
                     {/* LEFT SIDE: Image + Info */}
                     <div className="flex flex-row items-center gap-6">
                         {audit.siteImage ? (
-                            <img src={`http://localhost:5000${audit.siteImage}`} alt="Site Front" className="w-32 h-32 object-cover rounded-2xl shadow-sm border border-gray-200" crossOrigin="anonymous" />
+                            <img src={`https://audit-mbfr.onrender.com${audit.siteImage}`} alt="Site Front" className="w-32 h-32 object-cover rounded-2xl shadow-sm border border-gray-200" crossOrigin="anonymous" />
                         ) : (
                             <div className="w-32 h-32 bg-gray-50 rounded-2xl border flex flex-col items-center justify-center text-gray-300 shadow-inner">
                                 <FileImage className="w-10 h-10 mb-1 opacity-50" />
@@ -162,7 +162,7 @@ function AuditDetails() {
                                     {/* Right side image */}
                                     {issue.photoUrl && (
                                         <div className="shrink-0 w-36 h-28 ml-4">
-                                            <img src={`http://localhost:5000${issue.photoUrl}`} alt="Issue Proof" crossOrigin="anonymous" className="w-full h-full object-cover rounded-lg shadow-sm border border-gray-200" />
+                                            <img src={`https://audit-mbfr.onrender.com${issue.photoUrl}`} alt="Issue Proof" crossOrigin="anonymous" className="w-full h-full object-cover rounded-lg shadow-sm border border-gray-200" />
                                         </div>
                                     )}
                                 </div>
@@ -225,7 +225,7 @@ function AuditDetails() {
                                                                                     {item.comment && <p className="text-[13px] font-semibold italic text-gray-500 mt-1">Note: {item.comment}</p>}
                                                                                     {item.photoUrl && (
                                                                                         <div className="mt-2 text-left">
-                                                                                            <img src={`http://localhost:5000${item.photoUrl}`} className="h-20 w-32 object-cover rounded-lg shadow-sm border border-gray-200" crossOrigin="anonymous" alt="attachment" />
+                                                                                            <img src={`https://audit-mbfr.onrender.com${item.photoUrl}`} className="h-20 w-32 object-cover rounded-lg shadow-sm border border-gray-200" crossOrigin="anonymous" alt="attachment" />
                                                                                         </div>
                                                                                     )}
                                                                                 </div>
