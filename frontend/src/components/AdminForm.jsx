@@ -125,35 +125,46 @@ function AdminForm() {
         if (url) updateResponse(key, 'photoUrl', url);
     };
 
+    const buildCategories = () => {
+        const categoriesMap = {};
+        Object.values(responses).forEach(r => {
+            if (!categoriesMap[r.categoryName]) {
+                categoriesMap[r.categoryName] = { name: r.categoryName, subcategoriesMap: {} };
+            }
+            if (!categoriesMap[r.categoryName].subcategoriesMap[r.subcategoryName]) {
+                categoriesMap[r.categoryName].subcategoriesMap[r.subcategoryName] = { name: r.subcategoryName, items: [] };
+            }
+            categoriesMap[r.categoryName].subcategoriesMap[r.subcategoryName].items.push({
+                label: r.label,
+                value: r.value,
+                comment: r.comment || null,
+                photoUrl: r.photoUrl || null
+            });
+        });
+
+        return Object.values(categoriesMap).map(cat => ({
+            name: cat.name,
+            subcategories: Object.values(cat.subcategoriesMap).map(sub => ({
+                name: sub.name,
+                items: sub.items
+            }))
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (Object.keys(responses).length === 0) return;
 
         setIsSubmitting(true);
         try {
-            // Assemble nested categories array
-            const formattedCategories = FIXED_AUDIT_STRUCTURE.map(cat => ({
-                name: cat.name,
-                subcategories: cat.subcategories.map(sub => ({
-                    name: sub.name,
-                    items: sub.items.map(item => {
-                        const r = responses[item.id];
-                        return {
-                            label: item.label,
-                            value: r.value,
-                            comment: r.comment || null,
-                            photoUrl: r.photoUrl || null
-                        };
-                    })
-                }))
-            }));
+            const categories = buildCategories();
 
             const payload = {
                 site,
                 performedBy,
                 date: auditDate,
                 siteImage,
-                categories: formattedCategories
+                categories
             };
 
             await axios.post('https://audit-mbfr.onrender.com/api/audits', payload);
