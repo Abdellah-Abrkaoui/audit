@@ -77,7 +77,6 @@ function AuditDetails() {
             });
         });
     }
-    console.log(audit);
 
     return (
         <div className="max-w-5xl mx-auto pb-24">
