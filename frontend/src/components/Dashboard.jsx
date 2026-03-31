@@ -42,15 +42,20 @@ function Dashboard() {
     let subcategoryScores = {};
 
     audits.forEach(audit => {
-        audit.checklistResponses.forEach(res => {
-            if (res.value) totalYes++;
-            else totalNo++;
-
-            if (res.subcategory) {
-                if (!subcategoryScores[res.subcategory]) subcategoryScores[res.subcategory] = { yes: 0, total: 0 };
-                subcategoryScores[res.subcategory].total++;
-                if (res.value) subcategoryScores[res.subcategory].yes++;
-            }
+        if (!audit.categories) return;
+        audit.categories.forEach(cat => {
+            cat.subcategories.forEach(sub => {
+                if (!subcategoryScores[sub.name]) subcategoryScores[sub.name] = { yes: 0, total: 0 };
+                sub.items.forEach(item => {
+                    subcategoryScores[sub.name].total++;
+                    if (item.value) {
+                        totalYes++;
+                        subcategoryScores[sub.name].yes++;
+                    } else {
+                        totalNo++;
+                    }
+                });
+            });
         });
     });
 
@@ -97,8 +102,19 @@ function Dashboard() {
 
     return (
         <div className="space-y-8 pb-12">
+            {/* HERO SECTION */}
+            <div className="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-3xl p-10 text-white shadow-xl shadow-blue-900/20 relative overflow-hidden flex items-center justify-between">
+                <div className="relative z-10">
+                    <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tight">Audit basique de linéaire : Sport saisonniers</h1>
+                    <p className="text-xl text-blue-100 font-semibold opacity-90">Suivi des actions liées au linéaire</p>
+                </div>
+                <div className="hidden lg:flex p-6 bg-white/10 rounded-full backdrop-blur-md relative z-10">
+                    <CheckCircle className="w-16 h-16 text-white" />
+                </div>
+            </div>
+
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-black text-gray-900">Audit Overview</h1>
+                <h2 className="text-3xl font-black text-gray-900">Audit Overview</h2>
                 <Link to="/new" className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center">
                     Start New Professional Audit
                 </Link>
@@ -152,8 +168,18 @@ function Dashboard() {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
                             {audits.slice(0, 10).map(audit => {
-                                const y = audit.checklistResponses.filter(r => r.value).length;
-                                const total = audit.checklistResponses.length;
+                                let y = 0;
+                                let total = 0;
+                                if (audit.categories) {
+                                    audit.categories.forEach(cat => {
+                                        cat.subcategories.forEach(sub => {
+                                            sub.items.forEach(item => {
+                                                total++;
+                                                if (item.value) y++;
+                                            });
+                                        });
+                                    });
+                                }
                                 const score = total > 0 ? Math.round((y / total) * 100) : 0;
 
                                 return (
@@ -167,7 +193,7 @@ function Dashboard() {
                                                 )}
                                                 <div>
                                                     {audit.site}
-                                                    <div className="text-xs font-medium text-gray-500 mt-0.5">{audit.category}</div>
+                                                    <div className="text-xs font-medium text-gray-500 mt-0.5">Global Audit</div>
                                                 </div>
                                             </div>
                                         </td>

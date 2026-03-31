@@ -70,60 +70,56 @@ router.get('/:id', async (req, res) => {
         let totalItems = 0;
         let validItems = 0;
         let issuesCount = 0;
-        const grouped = {};
 
-        audit.checklistResponses.forEach(item => {
-            totalItems++;
-            if (item.value) validItems++;
-            else issuesCount++;
+        // Creating stats object
+        const categoriesStats = [];
 
-            // category
-            if (!grouped[item.category]) {
-                grouped[item.category] = { total: 0, valid: 0, percentage: 0, subcategories: {} };
-            }
-            grouped[item.category].total++;
-            if (item.value) grouped[item.category].valid++;
+        audit.categories.forEach(cat => {
+            let catTotal = 0;
+            let catValid = 0;
+            const subcategoriesStats = [];
 
-            // subcategory
-            let subcats = grouped[item.category].subcategories;
-            if (!subcats[item.subcategory]) {
-                subcats[item.subcategory] = { total: 0, valid: 0, percentage: 0, sections: {} };
-            }
-            subcats[item.subcategory].total++;
-            if (item.value) subcats[item.subcategory].valid++;
+            cat.subcategories.forEach(sub => {
+                let subTotal = 0;
+                let subValid = 0;
 
-            // section
-            let sections = subcats[item.subcategory].sections;
-            if (!sections[item.section]) {
-                sections[item.section] = { total: 0, valid: 0, percentage: 0, items: [] };
-            }
-            sections[item.section].total++;
-            if (item.value) sections[item.section].valid++;
-            sections[item.section].items.push(item);
+                sub.items.forEach(item => {
+                    totalItems++;
+                    catTotal++;
+                    subTotal++;
+
+                    if (item.value) {
+                        validItems++;
+                        catValid++;
+                        subValid++;
+                    } else {
+                        issuesCount++;
+                    }
+                });
+
+                subcategoriesStats.push({
+                    name: sub.name,
+                    percentage: subTotal > 0 ? Math.round((subValid / subTotal) * 100) : 0,
+                    total: subTotal,
+                    valid: subValid
+                });
+            });
+
+            categoriesStats.push({
+                name: cat.name,
+                percentage: catTotal > 0 ? Math.round((catValid / catTotal) * 100) : 0,
+                total: catTotal,
+                valid: catValid,
+                subcategories: subcategoriesStats
+            });
         });
 
-        // Calculate percentages
         const percentage = totalItems > 0 ? Math.round((validItems / totalItems) * 100) : 0;
-
-        for (let catKey in grouped) {
-            let cat = grouped[catKey];
-            cat.percentage = cat.total > 0 ? Math.round((cat.valid / cat.total) * 100) : 0;
-
-            for (let subKey in cat.subcategories) {
-                let sub = cat.subcategories[subKey];
-                sub.percentage = sub.total > 0 ? Math.round((sub.valid / sub.total) * 100) : 0;
-
-                for (let secKey in sub.sections) {
-                    let sec = sub.sections[secKey];
-                    sec.percentage = sec.total > 0 ? Math.round((sec.valid / sec.total) * 100) : 0;
-                }
-            }
-        }
 
         res.json({
             audit,
             stats: { totalItems, validItems, issuesCount, percentage },
-            grouped
+            categoriesStats
         });
     } catch (error) {
         console.error('Error fetching audit:', error);

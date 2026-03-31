@@ -42,7 +42,7 @@ function AuditDetails() {
 
         const opt = {
             margin: 15, // 15mm margin
-            filename: `Audit_Report_${data.audit.site.replace(/\\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`,
+            filename: `Audit_Report_${data.audit.site.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true, logging: false },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -55,8 +55,28 @@ function AuditDetails() {
     if (loading) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>;
     if (!data || !data.audit) return <div className="text-center py-12 text-gray-500 font-bold text-xl">Audit not found</div>;
 
-    const { audit, stats, grouped } = data;
-    const issues = audit.checklistResponses.filter(r => !r.value);
+    const { audit, stats, categoriesStats } = data;
+
+    // Extract all failed items across all categories
+    const issues = [];
+    if (audit.categories) {
+        audit.categories.forEach(cat => {
+            cat.subcategories.forEach(sub => {
+                sub.items.forEach(item => {
+                    if (!item.value) {
+                        issues.push({
+                            category: cat.name,
+                            subcategory: sub.name,
+                            label: item.label,
+                            comment: item.comment,
+                            photoUrl: item.photoUrl,
+                            value: item.value
+                        });
+                    }
+                });
+            });
+        });
+    }
 
     return (
         <div className="max-w-5xl mx-auto pb-24">
@@ -143,7 +163,7 @@ function AuditDetails() {
                                     {/* Left side text */}
                                     <div className="flex-1 pr-6 border-l-4 border-red-500 pl-4 py-1">
                                         <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mb-2">
-                                            {issue.category} &rsaquo; {issue.subcategory} &rsaquo; {issue.section}
+                                            {issue.category} &rsaquo; {issue.subcategory}
                                         </p>
                                         <h4 className="text-lg font-bold text-gray-900 mb-3">{issue.label}</h4>
 
@@ -182,68 +202,68 @@ function AuditDetails() {
                     </h3>
 
                     <div className="space-y-16">
-                        {Object.keys(grouped).map(catKey => {
-                            const cat = grouped[catKey];
+                        {audit.categories && audit.categories.map((cat, cIdx) => {
+                            const catStats = categoriesStats[cIdx];
                             return (
-                                <div key={catKey} className="space-y-8" style={{ pageBreakInside: 'auto' }}>
+                                <div key={cIdx} className="space-y-8" style={{ pageBreakInside: 'auto' }}>
                                     {/* CATEGORY */}
-                                    <div className="flex justify-between items-end border-b-2 border-gray-800 pb-2 mb-6" style={{ pageBreakInside: 'avoid' }}>
-                                        <h4 className="text-2xl font-black uppercase tracking-wider text-gray-900">{catKey}</h4>
-                                        <span className={`font-black text-xl px-4 py-1.5 rounded-lg border-2 ${cat.percentage >= 90 ? 'bg-green-50 text-green-700 border-green-200' : cat.percentage >= 70 ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-                                            {cat.percentage}%
-                                        </span>
+                                    <div className="flex flex-col border-b-2 border-gray-800 pb-4 mb-6" style={{ pageBreakInside: 'avoid' }}>
+                                        <div className="flex justify-between items-end mb-3">
+                                            <h4 className="text-2xl font-black uppercase tracking-wider text-gray-900">{cat.name}</h4>
+                                            <span className={`font-black text-xl px-4 py-1.5 rounded-lg border-2 ${catStats?.percentage >= 90 ? 'bg-green-50 text-green-700 border-green-200' : catStats?.percentage >= 70 ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                                {catStats?.percentage || 0}%
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div className={`h-2.5 rounded-full shadow-sm ${catStats?.percentage >= 90 ? 'bg-green-500' : catStats?.percentage >= 70 ? 'bg-orange-500' : 'bg-red-500'}`} style={{ width: `${catStats?.percentage || 0}%` }}></div>
+                                        </div>
                                     </div>
 
                                     {/* SUBCATEGORY */}
                                     <div className="space-y-10 pl-2">
-                                        {Object.keys(cat.subcategories).map(subKey => {
-                                            const sub = cat.subcategories[subKey];
+                                        {cat.subcategories.map((sub, sIdx) => {
+                                            const subStats = catStats?.subcategories?.[sIdx];
                                             return (
-                                                <div key={subKey} className="mb-8" style={{ pageBreakInside: 'auto' }}>
-                                                    <h5 className="text-lg font-black text-gray-800 mb-6 flex justify-between items-center bg-gray-100 px-5 py-3 rounded-lg border border-gray-200" style={{ pageBreakInside: 'avoid' }}>
-                                                        <span>{subKey}</span>
-                                                        <span className="text-blue-600 font-black">{sub.percentage}%</span>
-                                                    </h5>
+                                                <div key={sIdx} className="mb-8" style={{ pageBreakInside: 'auto' }}>
+                                                    <div className="mb-6 flex flex-col bg-gray-100 px-5 py-4 rounded-lg border border-gray-200" style={{ pageBreakInside: 'avoid' }}>
+                                                        <div className="flex justify-between items-center w-full mb-3">
+                                                            <span className="text-lg font-black text-gray-800">{sub.name}</span>
+                                                            <span className="text-blue-600 font-black">{subStats?.percentage || 0}%</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-300 rounded-full h-1.5">
+                                                            <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${subStats?.percentage || 0}%` }}></div>
+                                                        </div>
+                                                    </div>
 
                                                     <div className="pl-4 space-y-8">
-                                                        {Object.keys(sub.sections).map(secKey => {
-                                                            const sec = sub.sections[secKey];
-                                                            return (
-                                                                <div key={secKey} style={{ pageBreakInside: 'avoid' }}>
-                                                                    <h6 className="text-[12px] font-black uppercase tracking-widest text-gray-500 mb-3 ml-1 flex justify-between items-center">
-                                                                        <span>{secKey}</span>
-                                                                        <span className="text-gray-400 font-bold">{sec.percentage}%</span>
-                                                                    </h6>
-
-                                                                    {/* CHECKLIST ROWS */}
-                                                                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 shadow-sm">
-                                                                        {sec.items.map((item, idx) => (
-                                                                            <div key={idx} className="flex flex-row justify-between items-center p-4">
-                                                                                {/* Left side */}
-                                                                                <div className="flex-1 pr-6 flex flex-col justify-center">
-                                                                                    <p className={`font-bold text-[15px] ${item.value ? 'text-gray-800' : 'text-red-700'}`}>{item.label}</p>
-                                                                                    {item.comment && <p className="text-[13px] font-semibold italic text-gray-500 mt-1">Note: {item.comment}</p>}
-                                                                                    {item.photoUrl && (
-                                                                                        <div className="mt-2 text-left">
-                                                                                            <img src={item.photoUrl.startsWith('http') ? item.photoUrl : `https://audit-mbfr.onrender.com${item.photoUrl}`} className="h-20 w-32 object-cover rounded-lg shadow-sm border border-gray-200" crossOrigin="anonymous" alt="attachment" />
-                                                                                        </div>
-                                                                                    )}
+                                                        <div style={{ pageBreakInside: 'avoid' }}>
+                                                            {/* CHECKLIST ROWS */}
+                                                            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 shadow-sm">
+                                                                {sub.items.map((item, idx) => (
+                                                                    <div key={idx} className="flex flex-row justify-between items-center p-4">
+                                                                        {/* Left side */}
+                                                                        <div className="flex-1 pr-6 flex flex-col justify-center">
+                                                                            <p className={`font-bold text-[15px] ${item.value ? 'text-gray-800' : 'text-red-700'}`}>{item.label}</p>
+                                                                            {item.comment && <p className="text-[13px] font-semibold italic text-gray-500 mt-1">Note: {item.comment}</p>}
+                                                                            {item.photoUrl && (
+                                                                                <div className="mt-2 text-left">
+                                                                                    <img src={item.photoUrl.startsWith('http') ? item.photoUrl : `https://audit-mbfr.onrender.com${item.photoUrl}`} className="h-20 w-32 object-cover rounded-lg shadow-sm border border-gray-200" crossOrigin="anonymous" alt="attachment" />
                                                                                 </div>
+                                                                            )}
+                                                                        </div>
 
-                                                                                {/* Right side alignment (fixed width column) */}
-                                                                                <div className="w-24 text-right flex justify-end shrink-0">
-                                                                                    {item.value ? (
-                                                                                        <span className="inline-flex items-center justify-center px-4 py-1.5 bg-green-50 text-green-700 font-black text-sm rounded-lg min-w-[70px] border border-green-200 shadow-sm"><CheckCircle className="w-3.5 h-3.5 inline mr-1" />OUI</span>
-                                                                                    ) : (
-                                                                                        <span className="inline-flex items-center justify-center px-4 py-1.5 bg-red-50 text-red-700 font-black text-sm rounded-lg min-w-[70px] border border-red-200 shadow-sm"><XCircle className="w-3.5 h-3.5 inline mr-1" />NON</span>
-                                                                                    )}
-                                                                                </div>
-                                                                            </div>
-                                                                        ))}
+                                                                        {/* Right side alignment (fixed width column) */}
+                                                                        <div className="w-24 text-right flex justify-end shrink-0">
+                                                                            {item.value ? (
+                                                                                <span className="inline-flex items-center justify-center px-4 py-1.5 bg-green-50 text-green-700 font-black text-sm rounded-lg min-w-[70px] border border-green-200 shadow-sm"><CheckCircle className="w-3.5 h-3.5 inline mr-1" />OUI</span>
+                                                                            ) : (
+                                                                                <span className="inline-flex items-center justify-center px-4 py-1.5 bg-red-50 text-red-700 font-black text-sm rounded-lg min-w-[70px] border border-red-200 shadow-sm"><XCircle className="w-3.5 h-3.5 inline mr-1" />NON</span>
+                                                                            )}
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            )
-                                                        })}
+                                                                ))}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )
