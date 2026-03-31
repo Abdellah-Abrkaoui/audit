@@ -1,23 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 const Audit = require('../models/Audit');
 
-// Set up multer for handling photo uploads securely
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Configure Cloudinary using env vars
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        // Basic sanitize and unique id
-        cb(null, `${Date.now()}-${file.originalname.replace(/\\s/g, '_')}`);
+console.log("Cloudinary config:", {
+    cloud: process.env.CLOUDINARY_CLOUD_NAME,
+    key: process.env.CLOUDINARY_API_KEY,
+});
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'auditDashboard',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'webp']
     }
 });
 
@@ -27,7 +31,7 @@ const upload = multer({ storage });
 // The frontend will call this as soon as user uploads an image to an item and attach the photoUrl into the main form data
 router.post('/upload', upload.single('photo'), (req, res) => {
     if (req.file) {
-        res.json({ photoUrl: `/uploads/${req.file.filename}` });
+        res.json({ photoUrl: req.file.path });
     } else {
         res.status(400).json({ error: 'No file uploaded' });
     }

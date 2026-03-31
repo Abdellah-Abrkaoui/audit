@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const checklistResponseSchema = new mongoose.Schema({
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', default: null },
+    subcategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory', default: null },
+    sectionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Section', default: null },
+    checklistItemId: { type: mongoose.Schema.Types.ObjectId, ref: 'ChecklistItem', default: null },
     category: { type: String, required: true },
     subcategory: { type: String, required: true },
     section: { type: String, required: true },

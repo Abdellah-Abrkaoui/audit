@@ -161,7 +161,7 @@ function Dashboard() {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                             <div className="flex items-center">
                                                 {audit.siteImage ? (
-                                                    <img src={`https://audit-mbfr.onrender.com${audit.siteImage}`} className="w-8 h-8 rounded-md object-cover mr-3 border" />
+                                                    <img src={audit.siteImage.startsWith('http') ? audit.siteImage : `https://audit-mbfr.onrender.com${audit.siteImage}`} className="w-8 h-8 rounded-md object-cover mr-3 border" />
                                                 ) : (
                                                     <div className="w-8 h-8 rounded-md bg-gray-100 mr-3 flex items-center justify-center text-gray-400 border"><FileText className="w-4 h-4" /></div>
                                                 )}
