@@ -47,7 +47,7 @@ const FIXED_AUDIT_STRUCTURE = [
         subcategories: [
             { name: "Les polaires" },
             { name: "Les sandales" },
-            { name: "Chaussures" },
+            { name: "Nataion Femme" },
             { name: "Les sacs à dos" }
         ].map(sub => ({
             ...sub,
