@@ -4,7 +4,10 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
 const Audit = require('../models/Audit');
-
+require('dotenv').config();
+console.log("CLOUD NAME:", process.env.CLOUDINARY_CLOUD_NAME);
+console.log("API KEY:", process.env.CLOUDINARY_API_KEY);
+console.log("API SECRET:", process.env.CLOUDINARY_API_SECRET);
 // Configure Cloudinary using env vars
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -12,10 +15,6 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-console.log("Cloudinary config:", {
-    cloud: process.env.CLOUDINARY_CLOUD_NAME,
-    key: process.env.CLOUDINARY_API_KEY,
-});
 
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
