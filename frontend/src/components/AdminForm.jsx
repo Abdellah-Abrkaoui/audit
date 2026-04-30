@@ -12,7 +12,10 @@ const FIXED_AUDIT_STRUCTURE = [
             { name: "Natation femme + Serviette" },
             { name: "Surf Homme" },
             { name: "Surf Femme" },
-            { name: "Materiel Surf" }
+            { name: "Materiel Surf" },
+            { name: "Bébé" }
+
+
         ].map(sub => ({
             ...sub,
             items: [
@@ -45,10 +48,10 @@ const FIXED_AUDIT_STRUCTURE = [
     {
         name: "Les têtes de gondole (TG)",
         subcategories: [
-            { name: "Les polaires" },
-            { name: "Les sandales" },
+            { name: "Les sandales + Chaussures" },
             { name: "Nataion femme" },
-            { name: "Les sacs à dos" }
+            { name: "Les sacs à dos" },
+            { name: "Tong + Short" }
         ].map(sub => ({
             ...sub,
             items: [
